@@ -8,7 +8,7 @@ Stable tag: 1.0
 
 This plugin creates an APML Feed using the tags and categories.
 
-You can find a demo file here: [notizBlog.org/wp-apml.php](http://notizblog.org/wp-qpml.php).
+You can find a demo file here: [notizBlog.org/wp-apml.php](http://notizblog.org/wp-apml.php).
 
 == Description ==
 
