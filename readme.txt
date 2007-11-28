@@ -24,4 +24,4 @@ Nothing yet
 
 == Screenshots ==
 
-You can find a demo file here: [notizBlog.org/wp-apml.php](http://notizblog.org/qp-qpml.php).
+You can find a demo file here: [notizBlog.org/wp-apml.php](http://notizblog.org/wp-qpml.php).
