@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: APML support for WordPress
-Plugin URI: http://notizblog.org/projects/apml/
+Plugin URI: http://notizblog.org/projects/apml-for-wordpress/
 Description: This plugin creates an APML Feed using the tags and categories.
 Version: 1.0
 Author: Pfefferle
