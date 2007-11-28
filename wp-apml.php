@@ -1,4 +1,12 @@
 <?php
+/*
+Plugin Name: APML support for WordPress
+Plugin URI: http://notizblog.org/projects/apml/
+Description: This plugin creates an APML Feed using the tags and categories.
+Version: 1.0
+Author: Pfefferle
+Author URI: http://notizblog.org/
+*/
 
 if (empty($wp)) {
 	require_once('./wp-config.php');
