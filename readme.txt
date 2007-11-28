@@ -16,7 +16,7 @@ This plugin creates an APML Feed using the tags and categories.
 
 == Installation ==
 
-* Upload the `wp-apml.php` to your wordpress root, thats all
+* Upload the `wp-apml.php` to your **wordpress root**
 
 Thats it
 
