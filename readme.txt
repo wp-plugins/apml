@@ -15,6 +15,7 @@ This plugin creates an APML Feed using the the native tags and categories of Wor
 but it also supports UltimateTagWarrior and SimpleTagging for WordPress 2.0.11 - 2.2.x.
 
 Features:
+
 * WordPress 2.x Support
 * Permalinks support
 * Supports native Tagging or UltimateTagWarrior/SimpleTagging
@@ -29,10 +30,12 @@ You can find a demo file here: [notizBlog.org/wp-apml.php](http://notizblog.org/
 Thats it
 
 If you have mod_rewrite activated, you can access it at:
+
 * /ampl/
 * wp-apml.php
 
 else:
+
 * index.php?apml=apml
 
 == Frequently Asked Questions ==
@@ -44,6 +47,4 @@ else:
 
 == Screenshots ==
 
-<<<<<<< .mine
-You can find a demo file here: [notizBlog.org/apml/](http://notizblog.org/apml/).=======
-You can find a demo file here: [notizBlog.org/wp-apml.php](http://notizblog.org/wp-apml.php).>>>>>>> .r27460
+You can find a demo file here: [notizBlog.org/apml/](http://notizblog.org/apml/).
