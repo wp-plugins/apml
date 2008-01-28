@@ -3,7 +3,7 @@
 Plugin Name: APML support for WordPress
 Plugin URI: http://notizblog.org/projects/apml-for-wordpress/
 Description: This plugin creates an APML Feed using the tags and categories.
-Version: 2.3.1
+Version: 2.3.2
 Author: Matthias Pfefferle
 Author URI: http://notizblog.org/
 */
@@ -101,7 +101,7 @@ class APML {
             <p><a href="#" id="apml_more_link">show/hide more</a></p>
           <?php } ?>
         </div>
-        <p>APML url: <a href="<?php echo html_special_chars( $wp_query->query_vars['s'] )?>"><?php echo html_special_chars( $wp_query->query_vars['s'] )?></a></p>
+        <p>APML url: <a href="<?php echo htmlspecialchars( $wp_query->query_vars['s'] )?>"><?php echo htmlspecialchars( $wp_query->query_vars['s'] )?></a></p>
 <?php      
         echo $after_widget;
       }
@@ -199,7 +199,7 @@ class APML {
     
     $taglist = implode (',',$matching_tags);
     
-    $s = html_special_chars( $wp_query->query_vars['s'] );
+    $s = $wp_query->query_vars['s'];
 
     $wp_query->query('tag='.$taglist);
     
@@ -217,7 +217,7 @@ class APML {
   	global $wp_query;
     
   	// define url of .apml file
-    $url = html_special_chars( $wp_query->query_vars['s'] );
+    $url = $wp_query->query_vars['s'];
 
     $apml_array = wp_cache_get($url);
     if ($apml_array == false) {
