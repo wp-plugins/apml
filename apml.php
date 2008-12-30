@@ -3,7 +3,7 @@
 Plugin Name: APML support for WordPress
 Plugin URI: http://notizblog.org/projects/apml-for-wordpress/
 Description: This plugin creates an APML Feed using tags and categories.
-Version: 3.0
+Version: branch
 Author: Matthias Pfefferle
 Author URI: http://notizblog.org/
 */
@@ -20,6 +20,8 @@ if (isset($wp_version)) {
   add_filter('xrds_simple', array('Apml', 'xrds_apml_service'));
   add_filter('apml', array('Apml', 'apml_add_tags'));
   add_filter('apml', array('Apml', 'apml_add_categories'));
+  add_filter('apml', array('Apml', 'apml_add_links'));
+  add_filter('apml', array('Apml', 'apml_add_feeds'));
 }
 
 /**
@@ -103,11 +105,28 @@ class Apml {
    *
    */
   function apml_add_profile($apml, $ProfileName, $ImplicitData, $ExplicitData) {
-    $apml[$ProfileName]['ImplicitData']['Concepts'] = $ImplicitData['Concepts'];
-    $apml[$ProfileName]['ExplicitData']['Concepts'] = $ExplicitData['Concepts'];
+    if ($ImplicitData) {
+      foreach($ImplicitData as $concept => $data) {
+        if (is_array($apml[$ProfileName]['ImplicitData'][$concept])) {
+          $apml[$ProfileName]['ImplicitData'][$concept] = array_merge($apml[$ProfileName]['ImplicitData'][$concept], $ImplicitData[$concept]);
+        } else {
+          $apml[$ProfileName]['ImplicitData'][$concept] = $ImplicitData[$concept];
+        }
+      }
+    } elseif ($ExplicitData) {
+      foreach($ExplicitData as $concept => $data) {
+        if (is_array($apml[$ProfileName]['ExplicitData'][$concept])) {
+          $apml[$ProfileName]['ExplicitData'][$concept] = array_merge($apml[$ProfileName]['ExplicitData'][$concept], $ExplicitData[$concept]);
+        } else {
+          $apml[$ProfileName]['ExplicitData'][$concept] = $ExplicitData[$concept];
+        }
+      }
+    }
     
     return $apml;
   }
+  
+  
   
   
   /**
@@ -138,7 +157,18 @@ class Apml {
         $xml .= '     <'.$dataType.'>'."\n";
         foreach ($dataConcepts as $conceptType => $values) {
           $xml .= '       <'.$conceptType.'>'."\n";
-
+          switch ($conceptType) {
+            case "Concepts":
+              foreach ($values as $value) {  
+                $xml .= '         <Concept key="'.@$value['key'].'" value="'.@$value['value'].'" from="'.@$value['from'].'" updated="'.@$value['updated'].'"/>'."\n";
+              }
+              break;
+            case "Sources":
+              foreach ($values as $value) {  
+                $xml .= '         <Source key="'.@$value['key'].'" name="'.@$value['name'].'" value="'.@$value['value'].'" type="'.@$value['type'].'" from="'.@$value['from'].'" updated="'.@$value['updated'].'" />'."\n";
+              }
+              break;
+          }
           $xml .= '       </'.$conceptType.'>'."\n";
         }
         $xml .= '     </'.$dataType.'>'."\n";
@@ -180,7 +210,11 @@ class Apml {
     $tags = array();
     
     foreach (get_tags() as $tag) {
-      $tags[] = array('key' => $tag->name, 'value' => (($tag->count*100)/$tag_max)/100, 'from' => $url, 'updated' => $date);
+      $tags[] = array('key' => $tag->name,
+                      'value' => (($tag->count*100)/$tag_max)/100,
+                      'from' => $url,
+                      'updated' => $date
+                     );
     }
     
     return Apml::apml_add_profile($apml, 'tags', null, array('Concepts' => $tags));
@@ -202,10 +236,80 @@ class Apml {
     $cats = array();
     
     foreach (get_categories() as $cat) {
-      $cats[] = array('key' => isset($cat->name) ? $cat->name : $cat->cat_name, 'value' => (isset($cat->count) ? $cat->count : $cat->category_count) *100/$cat_max/100, 'from' => $url, 'updated' => $date);
+      $cats[] = array('key' => isset($cat->name) ? $cat->name : $cat->cat_name,
+                      'value' => (isset($cat->count) ? $cat->count : $cat->category_count) *100/$cat_max/100,
+                      'from' => $url,
+                      'updated' => $date
+                     );
     }
     
     return Apml::apml_add_profile($apml, 'categories', null, array('Concepts' => $cats));
+  }
+  
+  /**
+   * Contribute the WordPress Links to the APML file
+   *
+   * @param array $apml current APML array
+   * @return array updated APML array
+   */
+  function apml_add_links($apml) {
+    global $wpdb;
+    
+    $date = date('Y-m-d\Th:i:s');
+    $url = get_bloginfo('url');
+    
+    $sql = "SELECT link_url, link_name, link_rel, link_rating
+      FROM $wpdb->links
+      WHERE link_visible = 'Y'
+      ORDER BY link_name" ;
+
+    $results = $wpdb->get_results($sql);
+    $links = array();
+
+    foreach($results as $link) {
+      $links[] = array('key' => $link->link_url,
+                       'name' => $link->link_name,
+                       'value' => $link->link_rating != 0 ? $link->link_rating*100/9/100 : "1.0",
+                       'type' => 'text/html',
+                       'from' => $url,
+                       'updated' => $date
+                      );
+    }
+    
+    return Apml::apml_add_profile($apml, 'links', null, array('Sources' => $links));
+  }
+  
+  /**
+   * Contribute the WordPress Feeds to the APML file
+   *
+   * @param array $apml current APML array
+   * @return array updated APML array
+   */
+  function apml_add_feeds($apml) {
+    global $wpdb;
+    
+    $date = date('Y-m-d\Th:i:s');
+    $url = get_bloginfo('url');
+    
+    $sql = "SELECT link_rss, link_name, link_rel, link_rating
+      FROM $wpdb->links
+      WHERE link_visible = 'Y' AND link_rss != ''
+      ORDER BY link_name" ;
+
+    $results = $wpdb->get_results($sql);
+    $links = array();
+
+    foreach($results as $link) {
+      $links[] = array('key' => $link->link_rss,
+                       'name' => $link->link_name,
+                       'value' => $link->link_rating != 0 ? $link->link_rating*100/9/100 : "1.0",
+                       'type' => 'text/xml',
+                       'from' => $url,
+                       'updated' => $date
+                      );
+    }
+    
+    return Apml::apml_add_profile($apml, 'feeds', null, array('Sources' => $links));
   }
   
   /**
