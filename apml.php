@@ -14,13 +14,24 @@ if (isset($wp_version)) {
   add_action('parse_query', array('Apml', 'parse_query'));
   add_action('init', array('Apml', 'init'));
   add_filter('generate_rewrite_rules', array('Apml', 'rewrite_rules'));
-  
   add_action('wp_head', array('Apml', 'meta_tags'), 5);
   
+  // services/filters
   add_filter('xrds_simple', array('Apml', 'xrds_apml_service'));
   add_filter('apml', array('Apml', 'apml_add_tags'));
+  add_filter('apml', array('Apml', 'apml_add_categories'));
 }
 
+/**
+ * 
+ * 
+ * @param array $apml
+ * @param string $ProfileName
+ * @param array $ImplicitData
+ * @param array $ExplicitData
+ * 
+ * @return
+ */
 function apml_add_profile($apml, $ProfileName, $ImplicitData, $ExplicitData) {
   Apml::apml_add_profile($apml, $ProfileName, $ImplicitData, $ExplicitData);
   
@@ -34,6 +45,10 @@ function apml_add_profile($apml, $ProfileName, $ImplicitData, $ExplicitData) {
  * @author Matthias Pfefferle
  */
 class Apml {
+
+  /**
+   *
+   */
   function init() {
     global $wp_rewrite;
     $wp_rewrite->flush_rules();
@@ -45,7 +60,7 @@ class Apml {
   function meta_tags() {
     global $wp_rewrite;
    
-    echo '<link rel="meta" type="text/xml" title="APML" href="'.get_option('home').($wp_rewrite->using_mod_rewrite_permalinks() ? '/apml/' : '/index.php?apml').'" />' . "\n";
+    echo '<link rel="meta" type="application/xml+apml" title="APML 0.6" href="'.get_option('home').($wp_rewrite->using_mod_rewrite_permalinks() ? '/apml/' : '/index.php?apml').'" />' . "\n";
   }
   
   /**
@@ -108,7 +123,7 @@ class Apml {
     
     $date = date('Y-m-d\Th:i:s');
     
-    $xml =  '<APML xmlns="http://www.apml.org/apml-1.0" version="1.0" >'."\n";
+    $xml =  '<APML xmlns="http://www.apml.org/apml-0.6" version="0.6" >'."\n";
     $xml .= '  <Head>'."\n";
     $xml .= '    <Title>APML for '.get_bloginfo('name', 'display').'</Title>'."\n";
     $xml .= '    <Generator>wordpress/'.$wp_version.'</Generator>'."\n";
@@ -142,6 +157,7 @@ class Apml {
    *
    */
   function print_apml() {
+    //header('Content-Type: application/xml+apml; charset=' . get_option('blog_charset'), true);
     header('Content-Type: text/xml; charset=' . get_option('blog_charset'), true);
     echo '<?xml version="1.0"?>'."\n";
     echo Apml::generate_xml();
@@ -149,7 +165,7 @@ class Apml {
   }
   
   /**
-   * Contribute the WordPress Informations to the APML file
+   * Contribute the WordPress Tags to the APML file
    *
    * @param array $apml current APML array
    * @return array updated APML array
@@ -164,10 +180,32 @@ class Apml {
     $tags = array();
     
     foreach (get_tags() as $tag) {
-      $tags[] = array('Concept' => array('key' => $tag->name, 'value' => (($tag->count*100)/$tag_max)/100, 'from' => $url, 'updated' => $date));
+      $tags[] = array('key' => $tag->name, 'value' => (($tag->count*100)/$tag_max)/100, 'from' => $url, 'updated' => $date);
     }
     
     return Apml::apml_add_profile($apml, 'tags', null, array('Concepts' => $tags));
+  }
+  
+  /**
+   * Contribute the WordPress Categories to the APML file
+   *
+   * @param array $apml current APML array
+   * @return array updated APML array
+   */
+  function apml_add_categories($apml) {
+    global $wpdb;
+
+    $date = date('Y-m-d\Th:i:s');
+    $url = get_bloginfo('url');
+
+    $cat_max = $wpdb->get_var("SELECT MAX(count) FROM $wpdb->term_taxonomy WHERE taxonomy = 'category'");
+    $cats = array();
+    
+    foreach (get_categories() as $cat) {
+      $cats[] = array('key' => isset($cat->name) ? $cat->name : $cat->cat_name, 'value' => (isset($cat->count) ? $cat->count : $cat->category_count) *100/$cat_max/100, 'from' => $url, 'updated' => $date);
+    }
+    
+    return Apml::apml_add_profile($apml, 'categories', null, array('Concepts' => $cats));
   }
   
   /**
@@ -182,7 +220,7 @@ class Apml {
     $xrds = xrds_add_service($xrds, 'main', 'APML Service', 
       array(
         'Type' => array( array('content' => 'http://www.apml.org/apml-1.0') ),
-        //'MediaType' => array( array('content' => 'application/apml+xml') ),
+        'MediaType' => array( array('content' => 'application/xml+apml') ),
         'URI' => array( array('content' => get_option('home').($wp_rewrite->using_mod_rewrite_permalinks() ? '/apml/' : '/index.php?apml') ) ),
       )
     );
