@@ -164,8 +164,8 @@ class Apml {
    *
    */
   function print_apml() {
-    //header('Content-Type: application/xml+apml; charset=' . get_option('blog_charset'), true);
-    header('Content-Type: text/xml; charset=' . get_option('blog_charset'), true);
+    header('Content-Type: application/apml+xml; charset=' . get_option('blog_charset'), true);
+    //header('Content-Type: text/xml; charset=' . get_option('blog_charset'), true);
     echo '<?xml version="1.0"?>'."\n";
     echo Apml::generate_xml();
     exit;
@@ -301,7 +301,7 @@ class Apml {
     $xrds = xrds_add_service($xrds, 'main', 'APML Service', 
       array(
         'Type' => array( array('content' => 'http://www.apml.org/apml-0.6') ),
-        'MediaType' => array( array('content' => 'application/xml+apml') ),
+        'MediaType' => array( array('content' => 'application/apml+xml') ),
         'URI' => array( array('content' => get_option('home').'/index.php?apml') ),
       )
     );
