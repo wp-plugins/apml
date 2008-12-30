@@ -11,9 +11,7 @@ Author URI: http://notizblog.org/
 // register
 if (isset($wp_version)) {
   add_filter('query_vars', array('Apml', 'query_vars'));
-  add_action('parse_query', array('Apml', 'parse_query'));
-  add_action('init', array('Apml', 'init'));
-  add_filter('generate_rewrite_rules', array('Apml', 'rewrite_rules'));
+  add_action('parse_request', array('Apml', 'parse_request'));
   add_action('wp_head', array('Apml', 'meta_tags'), 5);
   
   // services/filters
@@ -47,14 +45,6 @@ function apml_add_profile($apml, $ProfileName, $ImplicitData, $ExplicitData) {
  * @author Matthias Pfefferle
  */
 class Apml {
-
-  /**
-   *
-   */
-  function init() {
-    global $wp_rewrite;
-    $wp_rewrite->flush_rules();
-  }
   
   /**
    * Insert the meta tags
@@ -62,20 +52,7 @@ class Apml {
   function meta_tags() {
     global $wp_rewrite;
    
-    echo '<link rel="meta" type="application/xml+apml" title="APML 0.6" href="'.get_option('home').($wp_rewrite->using_mod_rewrite_permalinks() ? '/apml/' : '/index.php?apml').'" />' . "\n";
-  }
-  
-  /**
-   * Define the rewrite rules
-   * 
-   * @param array $wp_rewrite
-   */
-  function rewrite_rules($wp_rewrite) {
-    $new_rules = array(
-      'apml$' => 'index.php?apml',
-      'wp-apml.php$' => 'index.php?apml'
-    );
-    $wp_rewrite->rules = $new_rules + $wp_rewrite->rules;
+    echo '<link rel="meta" type="application/xml+apml" title="APML 0.6" href="'.get_option('home').'/index.php?apml" />' . "\n";
   }
 
   /**
@@ -93,10 +70,10 @@ class Apml {
   /**
    * Print APML document if 'apml' query variable is present
    */
-  function parse_query() {
+  function parse_request() {
     global $wp_query;
-    
-    if( isset($wp_query->query_vars['apml']) ) {
+
+    if( isset($_GET['apml']) ) {
       Apml::print_apml();
     }
   }
@@ -323,9 +300,9 @@ class Apml {
     
     $xrds = xrds_add_service($xrds, 'main', 'APML Service', 
       array(
-        'Type' => array( array('content' => 'http://www.apml.org/apml-1.0') ),
+        'Type' => array( array('content' => 'http://www.apml.org/apml-0.6') ),
         'MediaType' => array( array('content' => 'application/xml+apml') ),
-        'URI' => array( array('content' => get_option('home').($wp_rewrite->using_mod_rewrite_permalinks() ? '/apml/' : '/index.php?apml') ) ),
+        'URI' => array( array('content' => get_option('home').'/index.php?apml') ),
       )
     );
   
