@@ -1,9 +1,0 @@
-input.apml-search-field, input.apml-search-field:active, input.apml-search-field:focus {
-  background: transparent url('./../img/apml-search-icon.png') center left no-repeat;
-  padding-left: 18px;
-}
-
-.apml, a[rel~="apml"] {
-  background: transparent url('./../img/apml-icon.png') no-repeat scroll left center no-repeat;
-  padding-left: 16px;
-}
