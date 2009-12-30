@@ -24,7 +24,7 @@ Thats it
 == Changelog ==
 
 = 3.1.1 =
-* Added file_get_contents as alternative to cUrl
+* lowercase concept-keys
 
 == Screenshots ==
 
