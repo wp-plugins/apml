@@ -3,8 +3,8 @@ Contributors: Matthias Pfefferle
 Donate link: http://notizblog.org
 Tags: APML, Attention Data, Feed, Taxonomy, Tags, Tag, Category, Categories, DataPortability
 Requires at least: 2.5
-Tested up to: 2.8.4
-Stable tag: 3.1
+Tested up to: 2.9
+Stable tag: 3.1.1
 
 This plugin creates an APML Feed using the the native WordPress-Tags, -Categories, -Links and -Feeds.
 
@@ -20,6 +20,11 @@ You can find a demo file here: [notizBlog.org/apml](http://notizblog.org/apml).
 * Activate it through the admin interface
 
 Thats it
+
+== Changelog ==
+
+= 3.1.1 =
+* Added file_get_contents as alternative to cUrl
 
 == Screenshots ==
 

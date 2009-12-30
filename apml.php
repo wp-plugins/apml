@@ -3,7 +3,7 @@
 Plugin Name: APML
 Plugin URI: http://notizblog.org/projects/apml-for-wordpress/
 Description: This plugin creates an APML Feed using the WordPress tags, categories, links and feeds.
-Version: 3.1
+Version: 3.1.1
 Author: Matthias Pfefferle
 Author URI: http://notizblog.org/
 */
@@ -224,7 +224,7 @@ class Apml {
     $tags = array();
 
     foreach (get_tags() as $tag) {
-      $tags[] = array('key' => $tag->name,
+      $tags[] = array('key' => strtolower($tag->name),
                       'value' => (($tag->count*100)/$tag_max)/100,
                       'from' => $url,
                       'updated' => $date
@@ -250,7 +250,7 @@ class Apml {
     $cats = array();
 
     foreach (get_categories() as $cat) {
-      $cats[] = array('key' => isset($cat->name) ? $cat->name : $cat->cat_name,
+      $cats[] = array('key' => isset($cat->name) ? strtolower($cat->name) : strtolower($cat->cat_name),
                       'value' => (isset($cat->count) ? $cat->count : $cat->category_count) *100/$cat_max/100,
                       'from' => $url,
                       'updated' => $date
@@ -281,7 +281,7 @@ class Apml {
     $links = array();
 
     foreach($results as $link) {
-      $links[] = array('key' => $link->link_url,
+      $links[] = array('key' => htmlentities($link->link_url),
                        'name' => $link->link_name,
                        'value' => $link->link_rating != 0 ? $link->link_rating*100/9/100 : "1.0",
                        'type' => 'text/html',
@@ -314,7 +314,7 @@ class Apml {
     $links = array();
 
     foreach($results as $link) {
-      $links[] = array('key' => $link->link_rss,
+      $links[] = array('key' => htmlentities($link->link_rss),
                        'name' => $link->link_name,
                        'value' => $link->link_rating != 0 ? $link->link_rating*100/9/100 : "1.0",
                        'type' => 'text/xml',
