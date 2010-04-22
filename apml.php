@@ -3,7 +3,7 @@
 Plugin Name: APML
 Plugin URI: http://notizblog.org/projects/apml-for-wordpress/
 Description: This plugin creates an APML Feed using the WordPress tags, categories, links and feeds.
-Version: 3.1.1
+Version: 3.1.2
 Author: Matthias Pfefferle
 Author URI: http://notizblog.org/
 */
@@ -17,6 +17,7 @@ if (isset($wp_version)) {
 
   // services/filters
   add_filter('xrds_simple', array('Apml', 'xrds_apml_service'));
+  add_action('webfinger_xrd', array('Apml', 'xrd_apml_link'));
   add_filter('apml', array('Apml', 'apml_add_tags'));
   add_filter('apml', array('Apml', 'apml_add_categories'));
   add_filter('apml', array('Apml', 'apml_add_links'));
@@ -344,6 +345,13 @@ class Apml {
     );
 
     return $xrds;
+  }
+  
+  /**
+   * Contribute the APML Service to Webfinger.
+   */
+  function xrd_apml_link() {
+    echo '<Link rel="http://www.apml.org/apml-0.6" type="application/xml+apml" href="'.Apml::apml_url().'" />';
   }
 }
 ?>
