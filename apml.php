@@ -18,7 +18,8 @@ if (isset($wp_version)) {
   
   // services/filters
   add_filter('xrds_simple', array('Apml', 'xrds_apml_service'));
-  add_action('webfinger_xrd', array('Apml', 'xrd_apml_link'));
+  add_action('host_meta', array('Apml', 'xrd_apml_link'));
+  add_action('webfinger', array('Apml', 'xrd_apml_link'));
   add_filter('apml', array('Apml', 'apml_add_tags'));
   add_filter('apml', array('Apml', 'apml_add_categories'));
   add_filter('apml', array('Apml', 'apml_add_links'));
@@ -359,8 +360,10 @@ class Apml {
   /**
    * Contribute the APML Service to Webfinger.
    */
-  function xrd_apml_link() {
-    echo '<Link rel="http://www.apml.org/apml-0.6" type="application/xml+apml" href="'.Apml::apml_url().'" />';
+  function xrd_apml_link($array) {
+    $array["links"][] = array("rel" => "http://www.apml.org/apml-0.6", "href" => Apml::apml_url(), "type" => "application/xml+apml");
+    
+    return $array;
   }
 }
 ?>
